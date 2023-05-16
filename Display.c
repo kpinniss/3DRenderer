@@ -14,8 +14,8 @@ uint32_t* _colorBuffer = NULL;
 
 int _windowWidth = 800;
 int _windowHeight = 600;
-uint32_t _gridBackGroundColor = 0x000000;
-uint32_t _gridColor = 0x808080;
+uint32_t _gridBackGroundColor = 0x222222;
+uint32_t _gridColor = 0x525252;
 uint32_t _drawColor = 0xffd700;
 
 #pragma endregion
@@ -126,6 +126,11 @@ void drawRect(int x, int y, int width, int height, uint32_t color) {
 	}
 }
 
+void drawTriangle(x1, y1, x2, y2, x3, y3) {
+	/*drawLine(x1, y1, x2, y2);
+	drawLine(x2, y2, x3, y3);
+	drawLine(x3, y3, x1, y1);*/
+}
 #pragma endregion
 
 
