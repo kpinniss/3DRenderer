@@ -27,5 +27,6 @@ void renderColorBuffer();
 void clearBuffer(uint32_t color);
 void destroyWindow(void);
 void drawRect(int posX, int posY, int w, int h, uint32_t color);
-void drawTriangle(x1, y1, x2, y2, x3, y3);
+void drawLine(int x1, int y1, int x2, int y2);
+void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
 #endif

@@ -9,6 +9,6 @@ typedef struct {
 }face_t;
 
 typedef struct {
-	vec2_t points[3];
+	vec2_t points[T_SIZE];
 } triangle_t;
 #endif

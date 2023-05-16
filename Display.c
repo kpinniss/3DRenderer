@@ -126,10 +126,32 @@ void drawRect(int x, int y, int width, int height, uint32_t color) {
 	}
 }
 
-void drawTriangle(x1, y1, x2, y2, x3, y3) {
-	/*drawLine(x1, y1, x2, y2);
+void drawLine(int x1, int y1, int x2, int y2) {
+	int deltaX = (x2 - x1);
+	int deltaY = (y2 - y1);
+	int abs_deltaX = abs(deltaX);
+	int abs_deltaY = abs(deltaY);
+
+	int sideLength = abs_deltaX >= abs_deltaY ? abs_deltaX : abs_deltaY;
+
+	//find increment values by dividing delta / sideLength
+	float incX = deltaX / (float)sideLength;
+	float incY = deltaY / (float)sideLength;
+
+	float currentX = x1;
+	float currentY = y1;
+
+	for (int i = 0; i < sideLength; i++) {
+		drawPixel(round(currentX), round(currentY), _drawColor);
+		currentX += incX;
+		currentY += incY;
+	}
+}
+
+void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
+	drawLine(x1, y1, x2, y2);
 	drawLine(x2, y2, x3, y3);
-	drawLine(x3, y3, x1, y1);*/
+	drawLine(x3, y3, x1, y1);
 }
 #pragma endregion
 

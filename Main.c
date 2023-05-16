@@ -119,12 +119,22 @@ void render(void) {
 
 	//render projected triangles
 	for (int i = 0; i < N_MESH_FACES; i++) {
-		
 		triangle_t triangle = trianglesToRender[i];
+
+		//draw vertex points
 		drawRect(triangle.points[0].x, triangle.points[0].y, 4, 4, _drawColor);
 		drawRect(triangle.points[1].x, triangle.points[1].y, 4, 4, _drawColor);
 		drawRect(triangle.points[2].x, triangle.points[2].y, 4, 4, _drawColor);
+
+		//draw triangles
+		drawTriangle(
+			trianglesToRender[i].points[0].x, trianglesToRender[i].points[0].y, 
+			trianglesToRender[i].points[1].x, trianglesToRender[i].points[1].y,
+			trianglesToRender[i].points[2].x, trianglesToRender[i].points[2].y
+			);
 	}
+
+	
 
 	renderColorBuffer();
 	clearBuffer(_gridBackGroundColor);
