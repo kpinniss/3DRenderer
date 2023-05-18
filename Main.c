@@ -5,13 +5,14 @@
 #include "Display.h"
 #include "Vector.h"
 #include "Mesh.h"
+#include "array.h"
 
 #pragma region Fields
 
 float _fovFactor = 640;
-triangle_t trianglesToRender[N_MESH_FACES];
+triangle_t* trianglesToRender = NULL;
 vec3_t _cameraPos = { .x = 0, .y = 0, .z = -5 };
-vec3_t _rotation = { 0,0,0 };
+//vec3_t _mesh.rotation = { 0,0,0 };
 
 bool _isRunning = false;
 int _prevFrameTime = 0;
@@ -33,6 +34,8 @@ void setup(void) {
 		fprintf(stderr, "Error initializing buffer.\n");
 		return false;
 	}
+	//loads mesh data for default cube shape
+	loadDefaultMesh();
 }
 
 void processInput(void) {
@@ -64,6 +67,9 @@ void update(void) {
 
 	//delay a few miliseconds to keep consistant frame rate.
 	//while (!SDL_TICKS_PASSED(SDL_GetTicks(), (_prevFrameTime + FRAME_TARGET_TIME))); //manual delay
+	// 
+	//re-init array of triangles
+	trianglesToRender = NULL;
 
 	int delayTime = FRAME_TARGET_TIME - (SDL_GetTicks() - _prevFrameTime);
 
@@ -73,17 +79,18 @@ void update(void) {
 
 	_prevFrameTime = SDL_GetTicks();
 
-	_rotation.x += 0.01;
-	_rotation.y += 0.01;
-	_rotation.z += 0.01;
+	_mesh.rotation.x += 0.01;
+	_mesh.rotation.y += 0.01;
+	_mesh.rotation.z += 0.01;
 
 	//iterate over triangle faces
-	for (int i = 0; i < N_MESH_FACES; i++) {
-		face_t currentMeshFace = meshFaces[i];
+	int numFaces = array_length(_mesh.faces);
+	for (int i = 0; i < numFaces; i++) {
+		face_t currentMeshFace = _mesh.faces[i];
 		vec3_t faceVertices[T_SIZE];
-		faceVertices[0] = meshVertices[(currentMeshFace.a - 1)];
-		faceVertices[1] = meshVertices[(currentMeshFace.b - 1)];
-		faceVertices[2] = meshVertices[(currentMeshFace.c - 1)];
+		faceVertices[0] = _mesh.vertices[(currentMeshFace.a - 1)];
+		faceVertices[1] = _mesh.vertices[(currentMeshFace.b - 1)];
+		faceVertices[2] = _mesh.vertices[(currentMeshFace.c - 1)];
 
 		triangle_t projectedTriangle;
 
@@ -92,9 +99,9 @@ void update(void) {
 			vec3_t transformedVertex = faceVertices[j];
 
 			//transform
-			transformedVertex = rotateX(transformedVertex, _rotation.x);
-			transformedVertex = rotateY(transformedVertex, _rotation.y);
-			transformedVertex = rotateZ(transformedVertex, _rotation.z);
+			transformedVertex = rotateX(transformedVertex, _mesh.rotation.x);
+			transformedVertex = rotateY(transformedVertex, _mesh.rotation.y);
+			transformedVertex = rotateZ(transformedVertex, _mesh.rotation.z);
 
 			//translate the vertex away from camera
 			transformedVertex.z -= _cameraPos.z;
@@ -109,7 +116,7 @@ void update(void) {
 			projectedTriangle.points[j] = projectedVertex;
 		}
 		//cache projected triangles
-		trianglesToRender[i] = projectedTriangle;
+		array_push(trianglesToRender, projectedTriangle);
 	}
 }
 
@@ -117,8 +124,10 @@ void render(void) {
 
 	drawGrid();
 
+	int numTriangles = array_length(trianglesToRender);
+
 	//render projected triangles
-	for (int i = 0; i < N_MESH_FACES; i++) {
+	for (int i = 0; i < numTriangles; i++) {
 		triangle_t triangle = trianglesToRender[i];
 
 		//draw vertex points
@@ -134,7 +143,8 @@ void render(void) {
 			);
 	}
 
-	
+	//Clear array to render every frame
+	array_free(trianglesToRender);
 
 	renderColorBuffer();
 	clearBuffer(_gridBackGroundColor);
@@ -142,6 +152,11 @@ void render(void) {
 	SDL_RenderPresent(_renderer);
 }
 
+void disposeResources(void) {
+	free(_colorBuffer);
+	array_free(_mesh.faces);
+	array_free(_mesh.vertices);
+}
 #pragma endregion
 
 #pragma region MainModule
@@ -158,6 +173,9 @@ int main(int argc, char* args[]) {
 	}
 
 	printf("Exiting App..");
+	destroyWindow();
+	disposeResources();
+
 	return 0;
 }
 
