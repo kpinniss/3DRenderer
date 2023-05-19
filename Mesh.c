@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "Mesh.h"
-#include "array.h"
+#include "Array.h"
+#include "Utils.h"
 
 mesh_t _mesh = {
     .vertices = NULL,
@@ -48,5 +49,62 @@ void loadDefaultMesh(void) {
     for (int i = 0; i < N_CUBE_VERTICES; i++) {
         face_t face = _cubeFaces[i];
         array_push(_mesh.faces, face);
+    }
+}
+
+void loadFromFile(char* filePath) {
+    FILE* file;
+    errno_t err;
+
+    // Store the content of the file
+    char fileContents[1024]; // each line of file
+
+    if ((err = fopen_s(&file, filePath, "r")) != 0) {
+        // File could not be opened. filepoint was set to NULL
+        printf(stderr, "cannot open file '%s': %s\n", strerror(err));
+        return 1;
+    }
+    else {
+        // Read the content and store it inside myString
+        if (file != NULL) {
+            while (fgets(fileContents, sizeof(fileContents), file)) {
+                if (startsWith(fileContents, "v ")) {
+                    vec3_t vertex;
+                    sscanf_s(fileContents, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
+                    array_push(_mesh.vertices, vertex);
+                }
+                if (startsWith(fileContents, "f ")) {
+                    int vertexIndices[3];
+                    int textureIndices[3];
+                    int normalIndices[3];
+                    sscanf_s(fileContents, "f %d/%d/%d %d/%d/%d %d/%d/%d",
+                        &vertexIndices[0], &textureIndices[0], &normalIndices[0],
+                        &vertexIndices[1], &textureIndices[1], &normalIndices[1],
+                        &vertexIndices[2], &textureIndices[2], &normalIndices[2]
+                    );
+                    face_t face = {
+                        .a = vertexIndices[0],
+                        .b = vertexIndices[1],
+                        .c = vertexIndices[2]
+                    };
+                    array_push(_mesh.faces, face);
+                }
+            }
+        }
+        // Print the file content
+        printf("%s", fileContents);
+
+        // Close the file
+        fclose(file);
+    }
+}
+
+
+void loadMesh(char* fileName) {
+    if (fileName == NULL || fileName[0] == '\0') {
+        loadDefaultMesh();
+    }
+    else {
+        loadFromFile(fileName);
     }
 }

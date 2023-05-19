@@ -16,7 +16,6 @@ typedef struct {
 	vec3_t rotation; //store rotation x,y,z
 } mesh_t;
 
-void loadDefaultMesh(void);
-
+void loadMesh(char* fileName);
 extern mesh_t _mesh;
 #endif

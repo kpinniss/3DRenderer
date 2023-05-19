@@ -5,7 +5,7 @@
 #include "Display.h"
 #include "Vector.h"
 #include "Mesh.h"
-#include "array.h"
+#include "Array.h"
 
 #pragma region Fields
 
@@ -35,7 +35,7 @@ void setup(void) {
 		return false;
 	}
 	//loads mesh data for default cube shape
-	loadDefaultMesh();
+	loadMesh("./assets/f22.obj");
 }
 
 void processInput(void) {
