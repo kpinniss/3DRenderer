@@ -70,7 +70,7 @@ void loadFromFile(char* filePath) {
             while (fgets(fileContents, sizeof(fileContents), file)) {
                 if (startsWith(fileContents, "v ")) {
                     vec3_t vertex;
-                    sscanf_s(fileContents, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
+                    sscanf_s(fileContents, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z); //TODO: replace sscan_s is windows exclusive. replace with c99 version
                     array_push(_mesh.vertices, vertex);
                 }
                 if (startsWith(fileContents, "f ")) {

@@ -35,7 +35,8 @@ void setup(void) {
 		return false;
 	}
 	//loads mesh data for default cube shape
-	loadMesh("./assets/f22.obj");
+	char* fileName = "./assets/f22.obj";
+	loadMesh(fileName);
 }
 
 void processInput(void) {
