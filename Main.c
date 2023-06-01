@@ -9,10 +9,10 @@
 
 #pragma region Fields
 
+int _zOffset = 5;
 float _fovFactor = 640;
 triangle_t* trianglesToRender = NULL;
-vec3_t _cameraPos = { .x = 0, .y = 0, .z = -5 };
-//vec3_t _mesh.rotation = { 0,0,0 };
+vec3_t _cameraPos = { 0, 0, 0 };
 
 bool _isRunning = false;
 int _prevFrameTime = 0;
@@ -34,6 +34,7 @@ void setup(void) {
 		fprintf(stderr, "Error initializing buffer.\n");
 		return false;
 	}
+
 	//loads mesh data for default cube shape
 	char* fileName = "./assets/f22.obj";
 	loadMesh(fileName);
@@ -68,7 +69,7 @@ void update(void) {
 
 	//delay a few miliseconds to keep consistant frame rate.
 	//while (!SDL_TICKS_PASSED(SDL_GetTicks(), (_prevFrameTime + FRAME_TARGET_TIME))); //manual delay
-	// 
+	
 	//re-init array of triangles
 	trianglesToRender = NULL;
 
@@ -93,8 +94,7 @@ void update(void) {
 		faceVertices[1] = _mesh.vertices[(currentMeshFace.b - 1)];
 		faceVertices[2] = _mesh.vertices[(currentMeshFace.c - 1)];
 
-		triangle_t projectedTriangle;
-
+		vec3_t transformedVertices[3];
 		// apply transform to vertices
 		for (int j = 0; j < T_SIZE; j++) {
 			vec3_t transformedVertex = faceVertices[j];
@@ -105,10 +105,42 @@ void update(void) {
 			transformedVertex = rotateZ(transformedVertex, _mesh.rotation.z);
 
 			//translate the vertex away from camera
-			transformedVertex.z -= _cameraPos.z;
+			transformedVertex.z += _zOffset;
+
+			//cache transformed vertex
+			transformedVertices[j] = transformedVertex;
+		}
+
+		//Check backface-culling
+		vec3_t vecA = transformedVertices[0];	 /*	 A   */
+		vec3_t vecB = transformedVertices[1];	/*  / \  */
+		vec3_t vecC = transformedVertices[2];  /*  C---B */
+
+		//Get Vector Subtraction of b-a and c-a
+		vec3_t vecAB = vec3Sub(vecB, vecA);
+		vec3_t vecAC = vec3Sub(vecC, vecA);
+
+		//Find face-normal between vectors (use cross product to find perpindicular)
+		vec3_t normal = vec3Cross(vecAB, vecAC);
+
+		//Find vector between point on the triangle and the camera origin  (camera --RAY--> vector)
+		vec3_t cameraRay = vec3Sub(_cameraPos, vecA);
+
+		//Check alignment of normal and cameraRay
+		float product = vec3Dot(normal, cameraRay);
+
+		//skip faces that are facing away from camera
+		if (product < 0) {
+			continue;
+		}
+
+		triangle_t projectedTriangle = { .points = { 0,0,0} };
+
+		//project vertices
+		for (int j = 0; j < T_SIZE; j++) {
 
 			//project current vertex
-			vec2_t projectedVertex = project(transformedVertex);
+			vec2_t projectedVertex = project(transformedVertices[j]);
 
 			//scale and translate to center screen
 			projectedVertex.x += (_windowWidth / 2);
