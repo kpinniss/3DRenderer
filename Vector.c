@@ -42,6 +42,12 @@ float vec2Dot(vec2_t a, vec2_t b) {
 	return (a.x * b.x) * (a.y * b.y);
 }
 
+void vec2Normalize(vec2_t* v) {
+	float length = sqrt(v->x * v->x + v->y * v->y);
+	v->x /= length;
+	v->y /= length;
+}
+
 #pragma endregion
 
 
@@ -125,6 +131,13 @@ vec3_t vec3Cross(vec3_t a, vec3_t b) {
 
 float vec3Dot(vec3_t a, vec3_t b) {
 	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
+}
+
+void vec3Normalize(vec3_t* v) {
+	float length = sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
+	v->x /= length;
+	v->y /= length;
+	v->z /= length;
 }
 #pragma endregion
 

@@ -8,7 +8,7 @@ mesh_t _mesh = {
     .faces = NULL,
     .rotation = {0,0,0,}
 };
-
+//_cubeVertices
 vec3_t _cubeVertices[N_CUBE_VERTICES] = {
     {.x = -1, .y = -1, .z = -1 }, // 1
     {.x = -1, .y = 1, .z = -1 }, // 2

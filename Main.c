@@ -10,9 +10,10 @@
 #pragma region Fields
 
 int _zOffset = 5;
-float _fovFactor = 640;
+float _fovFactor = 700;
 triangle_t* trianglesToRender = NULL;
 vec3_t _cameraPos = { 0, 0, 0 };
+int vertPointSize = 2;
 
 bool _isRunning = false;
 int _prevFrameTime = 0;
@@ -37,6 +38,7 @@ void setup(void) {
 
 	//loads mesh data for default cube shape
 	char* fileName = "./assets/f22.obj";
+	//fileName = NULL;
 	loadMesh(fileName);
 }
 
@@ -89,12 +91,13 @@ void update(void) {
 	int numFaces = array_length(_mesh.faces);
 	for (int i = 0; i < numFaces; i++) {
 		face_t currentMeshFace = _mesh.faces[i];
+
 		vec3_t faceVertices[T_SIZE];
 		faceVertices[0] = _mesh.vertices[(currentMeshFace.a - 1)];
 		faceVertices[1] = _mesh.vertices[(currentMeshFace.b - 1)];
 		faceVertices[2] = _mesh.vertices[(currentMeshFace.c - 1)];
 
-		vec3_t transformedVertices[3];
+		vec3_t transformedVertices[T_SIZE];
 		// apply transform to vertices
 		for (int j = 0; j < T_SIZE; j++) {
 			vec3_t transformedVertex = faceVertices[j];
@@ -119,9 +122,12 @@ void update(void) {
 		//Get Vector Subtraction of b-a and c-a
 		vec3_t vecAB = vec3Sub(vecB, vecA);
 		vec3_t vecAC = vec3Sub(vecC, vecA);
+		vec3Normalize(&vecAB);
+		vec3Normalize(&vecAC);
 
 		//Find face-normal between vectors (use cross product to find perpindicular)
 		vec3_t normal = vec3Cross(vecAB, vecAC);
+		vec3Normalize(&normal);
 
 		//Find vector between point on the triangle and the camera origin  (camera --RAY--> vector)
 		vec3_t cameraRay = vec3Sub(_cameraPos, vecA);
@@ -137,16 +143,16 @@ void update(void) {
 		triangle_t projectedTriangle = { .points = { 0,0,0} };
 
 		//project vertices
-		for (int j = 0; j < T_SIZE; j++) {
+		for (int k = 0; k < T_SIZE; k++) {
 
 			//project current vertex
-			vec2_t projectedVertex = project(transformedVertices[j]);
+			vec2_t projectedVertex = project(transformedVertices[k]);
 
 			//scale and translate to center screen
 			projectedVertex.x += (_windowWidth / 2);
 			projectedVertex.y += (_windowHeight / 2);
 
-			projectedTriangle.points[j] = projectedVertex;
+			projectedTriangle.points[k] = projectedVertex;
 		}
 		//cache projected triangles
 		array_push(trianglesToRender, projectedTriangle);
@@ -164,9 +170,9 @@ void render(void) {
 		triangle_t triangle = trianglesToRender[i];
 
 		//draw vertex points
-		drawRect(triangle.points[0].x, triangle.points[0].y, 4, 4, _drawColor);
-		drawRect(triangle.points[1].x, triangle.points[1].y, 4, 4, _drawColor);
-		drawRect(triangle.points[2].x, triangle.points[2].y, 4, 4, _drawColor);
+		drawRect(triangle.points[0].x, triangle.points[0].y, vertPointSize, vertPointSize, _drawColor);
+		drawRect(triangle.points[1].x, triangle.points[1].y, vertPointSize, vertPointSize, _drawColor);
+		drawRect(triangle.points[2].x, triangle.points[2].y, vertPointSize, vertPointSize, _drawColor);
 
 		//draw triangles
 		drawTriangle(
