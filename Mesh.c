@@ -46,7 +46,7 @@ void loadDefaultMesh(void) {
         vec3_t vertex = _cubeVertices[i];
         array_push(_mesh.vertices, vertex);
     }
-    for (int i = 0; i < N_CUBE_VERTICES; i++) {
+    for (int i = 0; i < N_CUBE_FACES; i++) {
         face_t face = _cubeFaces[i];
         array_push(_mesh.faces, face);
     }
