@@ -91,9 +91,6 @@ void loadFromFile(char* filePath) {
                 }
             }
         }
-        // Print the file content
-        printf("%s", fileContents);
-
         // Close the file
         fclose(file);
     }

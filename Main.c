@@ -37,8 +37,8 @@ void setup(void) {
 	}
 
 	//loads mesh data for default cube shape
-	char* fileName = "./assets/f22.obj";
-	//fileName = NULL;
+	char* fileName = "./assets/pyramid.obj";
+	fileName = NULL;
 	loadMesh(fileName);
 }
 
@@ -85,7 +85,7 @@ void update(void) {
 
 	_mesh.rotation.x += 0.01;
 	_mesh.rotation.y += 0.01;
-	_mesh.rotation.z += 0.01;
+	_mesh.rotation.z += 0.02;
 
 	//iterate over triangle faces
 	int numFaces = array_length(_mesh.faces);
@@ -137,7 +137,7 @@ void update(void) {
 
 		//skip faces that are facing away from camera
 		if (product < 0) {
-			continue;
+			//continue;
 		}
 
 		triangle_t projectedTriangle = { .points = { 0,0,0} };
@@ -170,24 +170,22 @@ void render(void) {
 		triangle_t triangle = trianglesToRender[i];
 
 		//draw vertex points
-		drawRect(triangle.points[0].x, triangle.points[0].y, vertPointSize, vertPointSize, _drawColor);
+		/*drawRect(triangle.points[0].x, triangle.points[0].y, vertPointSize, vertPointSize, _drawColor);
 		drawRect(triangle.points[1].x, triangle.points[1].y, vertPointSize, vertPointSize, _drawColor);
-		drawRect(triangle.points[2].x, triangle.points[2].y, vertPointSize, vertPointSize, _drawColor);
+		drawRect(triangle.points[2].x, triangle.points[2].y, vertPointSize, vertPointSize, _drawColor);*/
 
 		//draw triangles
 		drawTriangle(
-			trianglesToRender[i].points[0].x, trianglesToRender[i].points[0].y, 
-			trianglesToRender[i].points[1].x, trianglesToRender[i].points[1].y,
-			trianglesToRender[i].points[2].x, trianglesToRender[i].points[2].y
+			triangle.points[0].x, triangle.points[0].y, // vertex A
+			triangle.points[1].x, triangle.points[1].y,	// vertex B
+			triangle.points[2].x, triangle.points[2].y	// vertex C
 			);
 	}
 
 	//Clear array to render every frame
 	array_free(trianglesToRender);
-
 	renderColorBuffer();
 	clearBuffer(_gridBackGroundColor);
-
 	SDL_RenderPresent(_renderer);
 }
 
