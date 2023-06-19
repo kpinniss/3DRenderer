@@ -1,5 +1,5 @@
 # 3DRenderer
-Renders simple 3d models (SDL2)
+Renders simple 3d models from .obj files using (SDL2)
 
 This repo uses SDL2.
 see link and description below.
