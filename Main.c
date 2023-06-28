@@ -175,12 +175,13 @@ void render(void) {
 		drawRect(triangle.points[2].x, triangle.points[2].y, vertPointSize, vertPointSize, _drawColor);*/
 
 		//draw triangles
-		drawTriangle(
+		drawFilledTriangle(
 			triangle.points[0].x, triangle.points[0].y, // vertex A
 			triangle.points[1].x, triangle.points[1].y,	// vertex B
 			triangle.points[2].x, triangle.points[2].y	// vertex C
 			);
 	}
+	//drawFilledTriangle(300, 100, 50, 400, 500, 700);
 
 	//Clear array to render every frame
 	array_free(trianglesToRender);

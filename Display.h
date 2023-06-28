@@ -29,4 +29,7 @@ void destroyWindow(void);
 void drawRect(int posX, int posY, int w, int h, uint32_t color);
 void drawLine(int x1, int y1, int x2, int y2);
 void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
+void fillBottomTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
+void fillTopTraingle(int x0, int y0, int x1, int y1, int x2, int y2);
+void drawFilledTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
 #endif

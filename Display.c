@@ -152,6 +152,142 @@ void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
 	drawLine(x2, y2, x3, y3);
 	drawLine(x3, y3, x1, y1);
 }
+
+void intSwap(int* a, int* b) {
+	int tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+
+void sortVerices(int x0, int y0, int x1, int y1, int x2, int y2) {
+	if (y0 > y1) {
+		intSwap(&y0, &y1);
+		intSwap(&x0, &x1);
+	}
+	if (y1 > y2) {
+		intSwap(&y1, &y2);
+		intSwap(&x1, &x2);
+	}
+	if (y0 > y1) {
+		intSwap(&y0, &y1);
+		intSwap(&x0, &x1);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Draw a filled a triangle with a flat top
+///////////////////////////////////////////////////////////////////////////////
+//
+//  (x0,y0)------(x1,y1)
+//      \         /
+//       \       /
+//        \     /
+//         \   /
+//          \ /
+//        (x2,y2)
+//
+///////////////////////////////////////////////////////////////////////////////
+void fillBottomTriangle(int x0, int y0, int x1, int y1, int x2, int y2) {
+	float invSlope1 = (float)(x2 - x0) / (y2 - y0);
+	float invSlope2 = (float)(x2 - x1) / (y2 - y1);
+
+	// Start x_start and x_end from the bottom vertex (x2,y2)
+	float xStart = x2;
+	float xEnd = x2;
+
+	// Loop all the scanlines from bottom to top
+	for (int y = y2; y >= y0; y--) {
+		drawLine(xStart, y, xEnd, y);
+		xStart -= invSlope1;
+		xEnd -= invSlope2;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Draw a filled a triangle with a flat bottom
+///////////////////////////////////////////////////////////////////////////////
+//
+//        (x0,y0)
+//          / \
+//         /   \
+//        /     \
+//       /       \
+//      /         \
+//  (x1,y1)------(x2,y2)
+//
+///////////////////////////////////////////////////////////////////////////////
+void fillTopTraingle(int x0, int y0, int x1, int y1, int x2, int y2) {
+	//find changing inverse of the slope
+	float invSlope1 = (float)(x1 - x0) / (y1 - y0);
+	float invSlope2 = (float)(x2 - x0) / (y2 - y0);
+	
+	//start xStart adn xEnd from the top of vertex
+	float xStart = x0;
+	float xEnd = x0;
+
+	//iterate over scan lines
+	for (int y = y0; y <= y2; y++) {
+		drawLine(xStart, y, xEnd, y);
+		xStart += invSlope1;
+		xEnd += invSlope2;
+	}
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Draw a filled triangle with the flat-top/flat-bottom method
+// We split the original triangle in two, half flat-bottom and half flat-top
+///////////////////////////////////////////////////////////////////////////////
+//
+//          (x0,y0)
+//            / \
+//           /   \
+//          /     \
+//         /       \
+//        /         \
+//   (x1,y1)------(Mx,My)
+//       \_           \
+//          \_         \
+//             \_       \
+//                \_     \
+//                   \    \
+//                     \_  \
+//                        \_\
+//                           \
+//                         (x2,y2)
+//
+///////////////////////////////////////////////////////////////////////////////
+void drawFilledTriangle(int x0, int y0, int x1, int y1, int x2, int y2) {
+	//sort vertices by y-coordinate ascending (y0 < y1 < y2)
+	if (y0 > y1) {
+		intSwap(&y0, &y1);
+		intSwap(&x0, &x1);
+	}
+	if (y1 > y2) {
+		intSwap(&y1, &y2);
+		intSwap(&x1, &x2);
+	}
+	if (y0 > y1) {
+		intSwap(&y0, &y1);
+		intSwap(&x0, &x1);
+	}
+
+	if (y1 == y2) {
+		fillTopTraingle(x0, y0, x1, y1, x2, y2);
+	}
+	if (y0 == y1) {
+		fillBottomTriangle(x0, y0, x1, y1, x2, y2);
+	}
+	else {
+		//calculate new vertex using triangle similarity
+		int My = y1;
+		int Mx = ((float)((x2 - x0) * (y1 - y0)) / (float)(y2 - y0) + x0);
+
+		//draw flat bottom & flat top
+		fillTopTraingle(x0, y0, x1, y1, Mx, My);
+		fillBottomTriangle(x1, y1, Mx, My, x2, y2);
+	}
+}
 #pragma endregion
 
 
