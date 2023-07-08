@@ -17,6 +17,7 @@ int _windowHeight = 600;
 uint32_t _gridBackGroundColor = 0x222222;
 uint32_t _gridColor = 0x525252;
 uint32_t _drawColor = 0xffd700;
+uint32_t _drawColor2 = 0x241E9F;
 
 #pragma endregion
 
@@ -125,7 +126,7 @@ void drawRect(int x, int y, int width, int height, uint32_t color) {
 	}
 }
 
-void drawLine(int x1, int y1, int x2, int y2) {
+void drawLine(int x1, int y1, int x2, int y2, uint32_t color) {
 	int deltaX = (x2 - x1);
 	int deltaY = (y2 - y1);
 	int abs_deltaX = abs(deltaX);
@@ -141,16 +142,16 @@ void drawLine(int x1, int y1, int x2, int y2) {
 	float currentY = y1;
 
 	for (int i = 0; i < sideLength; i++) {
-		drawPixel(round(currentX), round(currentY), _drawColor);
+		drawPixel(round(currentX), round(currentY), color);
 		currentX += incX;
 		currentY += incY;
 	}
 }
 
-void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {
-	drawLine(x1, y1, x2, y2);
-	drawLine(x2, y2, x3, y3);
-	drawLine(x3, y3, x1, y1);
+void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, uint32_t color) {
+	drawLine(x1, y1, x2, y2, color);
+	drawLine(x2, y2, x3, y3, color);
+	drawLine(x3, y3, x1, y1, color);
 }
 
 void intSwap(int* a, int* b) {
@@ -187,7 +188,7 @@ void sortVerices(int x0, int y0, int x1, int y1, int x2, int y2) {
 //        (x2,y2)
 //
 ///////////////////////////////////////////////////////////////////////////////
-void fillBottomTriangle(int x0, int y0, int x1, int y1, int x2, int y2) {
+void fillBottomTriangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
 	float invSlope1 = (float)(x2 - x0) / (y2 - y0);
 	float invSlope2 = (float)(x2 - x1) / (y2 - y1);
 
@@ -197,7 +198,7 @@ void fillBottomTriangle(int x0, int y0, int x1, int y1, int x2, int y2) {
 
 	// Loop all the scanlines from bottom to top
 	for (int y = y2; y >= y0; y--) {
-		drawLine(xStart, y, xEnd, y);
+		drawLine(xStart, y, xEnd, y, color);
 		xStart -= invSlope1;
 		xEnd -= invSlope2;
 	}
@@ -216,7 +217,7 @@ void fillBottomTriangle(int x0, int y0, int x1, int y1, int x2, int y2) {
 //  (x1,y1)------(x2,y2)
 //
 ///////////////////////////////////////////////////////////////////////////////
-void fillTopTraingle(int x0, int y0, int x1, int y1, int x2, int y2) {
+void fillTopTraingle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
 	//find changing inverse of the slope
 	float invSlope1 = (float)(x1 - x0) / (y1 - y0);
 	float invSlope2 = (float)(x2 - x0) / (y2 - y0);
@@ -227,7 +228,7 @@ void fillTopTraingle(int x0, int y0, int x1, int y1, int x2, int y2) {
 
 	//iterate over scan lines
 	for (int y = y0; y <= y2; y++) {
-		drawLine(xStart, y, xEnd, y);
+		drawLine(xStart, y, xEnd, y, color);
 		xStart += invSlope1;
 		xEnd += invSlope2;
 	}
@@ -257,7 +258,7 @@ void fillTopTraingle(int x0, int y0, int x1, int y1, int x2, int y2) {
 //                         (x2,y2)
 //
 ///////////////////////////////////////////////////////////////////////////////
-void drawFilledTriangle(int x0, int y0, int x1, int y1, int x2, int y2) {
+void drawFilledTriangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
 	//sort vertices by y-coordinate ascending (y0 < y1 < y2)
 	if (y0 > y1) {
 		intSwap(&y0, &y1);
@@ -273,10 +274,10 @@ void drawFilledTriangle(int x0, int y0, int x1, int y1, int x2, int y2) {
 	}
 
 	if (y1 == y2) {
-		fillTopTraingle(x0, y0, x1, y1, x2, y2);
+		fillTopTraingle(x0, y0, x1, y1, x2, y2, color);
 	}
 	if (y0 == y1) {
-		fillBottomTriangle(x0, y0, x1, y1, x2, y2);
+		fillBottomTriangle(x0, y0, x1, y1, x2, y2, color);
 	}
 	else {
 		//calculate new vertex using triangle similarity
@@ -284,8 +285,8 @@ void drawFilledTriangle(int x0, int y0, int x1, int y1, int x2, int y2) {
 		int Mx = ((float)((x2 - x0) * (y1 - y0)) / (float)(y2 - y0) + x0);
 
 		//draw flat bottom & flat top
-		fillTopTraingle(x0, y0, x1, y1, Mx, My);
-		fillBottomTriangle(x1, y1, Mx, My, x2, y2);
+		fillTopTraingle(x0, y0, x1, y1, Mx, My, color);
+		fillBottomTriangle(x1, y1, Mx, My, x2, y2, color);
 	}
 }
 #pragma endregion

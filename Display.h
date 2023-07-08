@@ -19,6 +19,7 @@ extern int _windowHeight;
 uint32_t _gridBackGroundColor;
 uint32_t _gridColor;
 uint32_t _drawColor;
+uint32_t _drawColor2;
 
 bool initWindow(void);
 void drawGrid();
@@ -27,9 +28,9 @@ void renderColorBuffer();
 void clearBuffer(uint32_t color);
 void destroyWindow(void);
 void drawRect(int posX, int posY, int w, int h, uint32_t color);
-void drawLine(int x1, int y1, int x2, int y2);
-void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3);
-void fillBottomTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
-void fillTopTraingle(int x0, int y0, int x1, int y1, int x2, int y2);
-void drawFilledTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
+void drawLine(int x1, int y1, int x2, int y2, uint32_t color);
+void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, uint32_t color);
+void fillBottomTriangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
+void fillTopTraingle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
+void drawFilledTriangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
 #endif

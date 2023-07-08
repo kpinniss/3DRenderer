@@ -130,7 +130,7 @@ vec3_t vec3Cross(vec3_t a, vec3_t b) {
 }
 
 float vec3Dot(vec3_t a, vec3_t b) {
-	return ((a.x * b.x) + (a.y * b.y) + (a.z * b.z));
+	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
 void vec3Normalize(vec3_t* v) {

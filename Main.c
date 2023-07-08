@@ -37,7 +37,7 @@ void setup(void) {
 	}
 
 	//loads mesh data for default cube shape
-	char* fileName = "./assets/pyramid.obj";
+	char* fileName = "./assets/f22.obj";
 	fileName = NULL;
 	loadMesh(fileName);
 }
@@ -72,9 +72,6 @@ void update(void) {
 	//delay a few miliseconds to keep consistant frame rate.
 	//while (!SDL_TICKS_PASSED(SDL_GetTicks(), (_prevFrameTime + FRAME_TARGET_TIME))); //manual delay
 	
-	//re-init array of triangles
-	trianglesToRender = NULL;
-
 	int delayTime = FRAME_TARGET_TIME - (SDL_GetTicks() - _prevFrameTime);
 
 	if (delayTime > 0 && delayTime <= FRAME_TARGET_TIME) {
@@ -83,9 +80,12 @@ void update(void) {
 
 	_prevFrameTime = SDL_GetTicks();
 
+	//re-init array of triangles
+	trianglesToRender = NULL;
+
 	_mesh.rotation.x += 0.01;
 	_mesh.rotation.y += 0.01;
-	_mesh.rotation.z += 0.02;
+	_mesh.rotation.z += 0.01;
 
 	//iterate over triangle faces
 	int numFaces = array_length(_mesh.faces);
@@ -98,6 +98,7 @@ void update(void) {
 		faceVertices[2] = _mesh.vertices[(currentMeshFace.c - 1)];
 
 		vec3_t transformedVertices[T_SIZE];
+
 		// apply transform to vertices
 		for (int j = 0; j < T_SIZE; j++) {
 			vec3_t transformedVertex = faceVertices[j];
@@ -137,7 +138,7 @@ void update(void) {
 
 		//skip faces that are facing away from camera
 		if (product < 0) {
-			//continue;
+			continue;
 		}
 
 		triangle_t projectedTriangle = { .points = { 0,0,0} };
@@ -178,8 +179,15 @@ void render(void) {
 		drawFilledTriangle(
 			triangle.points[0].x, triangle.points[0].y, // vertex A
 			triangle.points[1].x, triangle.points[1].y,	// vertex B
-			triangle.points[2].x, triangle.points[2].y	// vertex C
+			triangle.points[2].x, triangle.points[2].y,	// vertex C
+			_drawColor2
 			);
+		drawTriangle(
+			triangle.points[0].x, triangle.points[0].y, // vertex A
+			triangle.points[1].x, triangle.points[1].y,	// vertex B
+			triangle.points[2].x, triangle.points[2].y,	// vertex C
+			_drawColor
+		);
 	}
 	//drawFilledTriangle(300, 100, 50, 400, 500, 700);
 
