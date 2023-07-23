@@ -23,6 +23,11 @@ int _prevFrameTime = 0;
 #pragma region Modules
 
 void setup(void) {
+
+	//set defualt render and cull methods
+	_renderMethod = RENDER_WIRE;
+	_cullMethod = CULL_BACKFACE;
+
 	_colorBuffer = (uint32_t*)malloc(sizeof(uint32_t) * _windowWidth * _windowHeight);
 	_colorBufferTexture = SDL_CreateTexture(
 		_renderer,
@@ -52,6 +57,24 @@ void processInput(void) {
 	case SDL_KEYDOWN:
 		if (event.key.keysym.sym == SDLK_ESCAPE) {
 			_isRunning = false;
+		}
+		if (event.key.keysym.sym == SDLK_1) {
+			_renderMethod = RENDER_WIRE_VERTEX;
+		}
+		if (event.key.keysym.sym == SDLK_2) {
+			_renderMethod = RENDER_WIRE;
+		}
+		if (event.key.keysym.sym == SDLK_3) {
+			_renderMethod = RENDER_FILL_TRIANGLE;
+		}
+		if (event.key.keysym.sym == SDLK_4) {
+			_renderMethod = RENDER_FILL_TRIANGLE_WIRE;
+		}
+		if (event.key.keysym.sym == SDLK_c) {
+			_cullMethod = CULL_BACKFACE;
+		}
+		if (event.key.keysym.sym == SDLK_d) {
+			_cullMethod = CULL_NONE;
 		}
 		break;
 	}
@@ -115,46 +138,58 @@ void update(void) {
 			transformedVertices[j] = transformedVertex;
 		}
 
-		//Check backface-culling
-		vec3_t vecA = transformedVertices[0];	 /*	 A   */
-		vec3_t vecB = transformedVertices[1];	/*  / \  */
-		vec3_t vecC = transformedVertices[2];  /*  C---B */
+		//Check backface-culling//
+		if (_cullMethod == CULL_BACKFACE) {
+			
+			vec3_t vecA = transformedVertices[0];	 /*	 A   */
+			vec3_t vecB = transformedVertices[1];	/*  / \  */
+			vec3_t vecC = transformedVertices[2];  /*  C---B */
 
-		//Get Vector Subtraction of b-a and c-a
-		vec3_t vecAB = vec3Sub(vecB, vecA);
-		vec3_t vecAC = vec3Sub(vecC, vecA);
-		vec3Normalize(&vecAB);
-		vec3Normalize(&vecAC);
+			//Get Vector Subtraction of b-a and c-a
+			vec3_t vecAB = vec3Sub(vecB, vecA);
+			vec3_t vecAC = vec3Sub(vecC, vecA);
+			vec3Normalize(&vecAB);
+			vec3Normalize(&vecAC);
 
-		//Find face-normal between vectors (use cross product to find perpindicular)
-		vec3_t normal = vec3Cross(vecAB, vecAC);
-		vec3Normalize(&normal);
+			//Find face-normal between vectors (use cross product to find perpindicular)
+			vec3_t normal = vec3Cross(vecAB, vecAC);
+			vec3Normalize(&normal);
 
-		//Find vector between point on the triangle and the camera origin  (camera --RAY--> vector)
-		vec3_t cameraRay = vec3Sub(_cameraPos, vecA);
+			//Find vector between point on the triangle and the camera origin  (camera --RAY--> vector)
+			vec3_t cameraRay = vec3Sub(_cameraPos, vecA);
 
-		//Check alignment of normal and cameraRay
-		float product = vec3Dot(normal, cameraRay);
+			//Check alignment of normal and cameraRay
+			float product = vec3Dot(normal, cameraRay);
 
-		//skip faces that are facing away from camera
-		if (product < 0) {
-			continue;
+			//skip faces that are facing away from camera
+			if (product < 0) {
+				continue;
+			}
 		}
 
-		triangle_t projectedTriangle = { .points = { 0,0,0} };
+		vec2_t projectedPoints[3];
 
 		//project vertices
 		for (int k = 0; k < T_SIZE; k++) {
 
 			//project current vertex
-			vec2_t projectedVertex = project(transformedVertices[k]);
+			projectedPoints[k] = project(transformedVertices[k]);
 
 			//scale and translate to center screen
-			projectedVertex.x += (_windowWidth / 2);
-			projectedVertex.y += (_windowHeight / 2);
-
-			projectedTriangle.points[k] = projectedVertex;
+			projectedPoints[k].x += (_windowWidth / 2);
+			projectedPoints[k].y += (_windowHeight / 2);
 		}
+
+		//init triangle with projected points and color
+		triangle_t projectedTriangle = { 
+			.points = { 
+				{projectedPoints[0].x, projectedPoints[0].y},
+				{projectedPoints[1].x, projectedPoints[1].y},
+				{projectedPoints[2].x, projectedPoints[2].y},
+			},
+			.color = currentMeshFace.color
+		};
+
 		//cache projected triangles
 		array_push(trianglesToRender, projectedTriangle);
 	}
@@ -176,18 +211,27 @@ void render(void) {
 		drawRect(triangle.points[2].x, triangle.points[2].y, vertPointSize, vertPointSize, _drawColor);*/
 
 		//draw triangles
-		drawFilledTriangle(
-			triangle.points[0].x, triangle.points[0].y, // vertex A
-			triangle.points[1].x, triangle.points[1].y,	// vertex B
-			triangle.points[2].x, triangle.points[2].y,	// vertex C
-			_drawColor2
+		if (_renderMethod == RENDER_FILL_TRIANGLE || _renderMethod == RENDER_FILL_TRIANGLE_WIRE) {
+			drawFilledTriangle(
+				triangle.points[0].x, triangle.points[0].y, // vertex A
+				triangle.points[1].x, triangle.points[1].y,	// vertex B
+				triangle.points[2].x, triangle.points[2].y,	// vertex C
+				triangle.color
 			);
-		drawTriangle(
-			triangle.points[0].x, triangle.points[0].y, // vertex A
-			triangle.points[1].x, triangle.points[1].y,	// vertex B
-			triangle.points[2].x, triangle.points[2].y,	// vertex C
-			_drawColor
-		);
+		}
+		if (_renderMethod == RENDER_WIRE || _renderMethod == RENDER_WIRE_VERTEX || _renderMethod == RENDER_FILL_TRIANGLE_WIRE) {
+			drawTriangle(
+				triangle.points[0].x, triangle.points[0].y, // vertex A
+				triangle.points[1].x, triangle.points[1].y,	// vertex B
+				triangle.points[2].x, triangle.points[2].y,	// vertex C
+				BLACK
+			);
+		}
+		if (_renderMethod == RENDER_WIRE_VERTEX) {
+			drawRect(triangle.points[0].x - 3, triangle.points[0].y - 3, 6, 6, BLACK);
+			drawRect(triangle.points[1].x - 3, triangle.points[1].y - 3, 6, 6, BLACK);
+			drawRect(triangle.points[2].x - 3, triangle.points[2].y - 3, 6, 6, BLACK);
+		}
 	}
 	//drawFilledTriangle(300, 100, 50, 400, 500, 700);
 

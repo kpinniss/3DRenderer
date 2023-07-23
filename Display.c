@@ -14,10 +14,10 @@ uint32_t* _colorBuffer = NULL;
 
 int _windowWidth = 800;
 int _windowHeight = 600;
-uint32_t _gridBackGroundColor = 0x222222;
-uint32_t _gridColor = 0x525252;
-uint32_t _drawColor = 0xffd700;
-uint32_t _drawColor2 = 0x241E9F;
+uint32_t _gridBackGroundColor = GRAY;
+uint32_t _gridColor = DARKGRAY;
+uint32_t _drawColor = YELLOW;
+uint32_t _drawColor2 = NAVYBLUE;
 
 #pragma endregion
 
