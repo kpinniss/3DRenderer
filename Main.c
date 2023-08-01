@@ -180,6 +180,9 @@ void update(void) {
 			projectedPoints[k].y += (_windowHeight / 2);
 		}
 
+		// Calculate the average depth for each face based on the vertices after transformation
+		float avgDepth = (transformedVertices[0].z + transformedVertices[1].z + transformedVertices[2].z) / 3.0;
+
 		//init triangle with projected points and color
 		triangle_t projectedTriangle = { 
 			.points = { 
@@ -187,11 +190,25 @@ void update(void) {
 				{projectedPoints[1].x, projectedPoints[1].y},
 				{projectedPoints[2].x, projectedPoints[2].y},
 			},
-			.color = currentMeshFace.color
+			.color = currentMeshFace.color,
+			.avg_depth = avgDepth
 		};
 
 		//cache projected triangles
 		array_push(trianglesToRender, projectedTriangle);
+	}
+
+	// Sort the triangles to render by their avg_depth
+	int num_triangles = array_length(trianglesToRender);
+	for (int i = 0; i < num_triangles; i++) {
+		for (int j = i; j < num_triangles; j++) {
+			if (trianglesToRender[i].avg_depth < trianglesToRender[j].avg_depth) {
+				// Swap the triangles positions in the array
+				triangle_t temp = trianglesToRender[i];
+				trianglesToRender[i] = trianglesToRender[j];
+				trianglesToRender[j] = temp;
+			}
+		}
 	}
 }
 
