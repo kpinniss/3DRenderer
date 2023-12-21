@@ -6,7 +6,9 @@
 mesh_t _mesh = {
     .vertices = NULL,
     .faces = NULL,
-    .rotation = {0,0,0,}
+    .rotation = {0,0,0},
+    .scale = { 1.0,1.0,1.0},
+    .translation = {0,0,0}
 };
 //_cubeVertices
 vec3_t _cubeVertices[N_CUBE_VERTICES] = {

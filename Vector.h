@@ -14,6 +14,10 @@ typedef struct {
 	float x, y;
 } vec2_t;
 
+typedef struct {
+	float x, y, z, w;
+} vec4_t;
+
 //2D vector functions
 float vec2Length(vec2_t v);
 vec2_t vec2Add(vec2_t a, vec2_t b);
@@ -36,5 +40,9 @@ void vec3Normalize(vec3_t* v);
 vec3_t rotateX(vec3_t v, float angle);
 vec3_t rotateY(vec3_t v, float angle);
 vec3_t rotateZ(vec3_t v, float angle);
+
+//Vector conversion functions
+vec4_t vec4_fromVec3(vec3_t v);
+vec3_t vec3_fromVec4(vec4_t v);
 
 #endif

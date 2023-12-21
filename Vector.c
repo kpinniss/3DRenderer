@@ -139,5 +139,16 @@ void vec3Normalize(vec3_t* v) {
 	v->y /= length;
 	v->z /= length;
 }
+
+//conversion funcs
+vec4_t vec4_fromVec3(vec3_t v) {
+	vec4_t result = { v.x, v.y, v.z, 1.0 };
+	return result;
+}
+
+vec3_t vec3_fromVec4(vec4_t v) {
+	vec3_t result = { v.x, v.y, v.z };
+	return result;
+}
 #pragma endregion
 

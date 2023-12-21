@@ -6,6 +6,7 @@
 #include "Vector.h"
 #include "Mesh.h"
 #include "Array.h"
+#include "Matrix.h"
 
 #pragma region Fields
 
@@ -105,11 +106,23 @@ void update(void) {
 
 	//re-init array of triangles
 	trianglesToRender = NULL;
-
+	//rotate
 	_mesh.rotation.x += 0.01;
 	_mesh.rotation.y += 0.01;
 	_mesh.rotation.z += 0.01;
+	//scale
+	_mesh.scale.x += 0.001;
+	_mesh.scale.y += 0.002;
+	//translate
+	_mesh.translation.x += 0.01;
+	_mesh.translation.z = _zOffset;
 
+	//create scale, rotation and translation matrix that will be used to multiply the mesh vertices
+	mat4_t scale_matrix = mat4_makeScale(_mesh.scale.x, _mesh.scale.y, _mesh.scale.z);
+	mat4_t translation_matrix = mat4_makeTranslation(_mesh.translation.x, _mesh.translation.y, _mesh.translation.z);
+	mat4_t rmatrix_x = mat4_makeRotationX(_mesh.rotation.x);
+	mat4_t rmatrix_y = mat4_makeRotationY(_mesh.rotation.y);
+	mat4_t rmatrix_z = mat4_makeRotationZ(_mesh.rotation.z);
 	//iterate over triangle faces
 	int numFaces = array_length(_mesh.faces);
 	for (int i = 0; i < numFaces; i++) {
@@ -120,19 +133,25 @@ void update(void) {
 		faceVertices[1] = _mesh.vertices[(currentMeshFace.b - 1)];
 		faceVertices[2] = _mesh.vertices[(currentMeshFace.c - 1)];
 
-		vec3_t transformedVertices[T_SIZE];
+		vec4_t transformedVertices[T_SIZE];
 
 		// apply transform to vertices
 		for (int j = 0; j < T_SIZE; j++) {
-			vec3_t transformedVertex = faceVertices[j];
+			vec4_t transformedVertex = vec4_fromVec3(faceVertices[j]);
 
-			//transform
-			transformedVertex = rotateX(transformedVertex, _mesh.rotation.x);
-			transformedVertex = rotateY(transformedVertex, _mesh.rotation.y);
-			transformedVertex = rotateZ(transformedVertex, _mesh.rotation.z);
-
+			//refactor//***
+			// use a matrix ti sacale our original vertex
+			//scale first
+			transformedVertex = mat4_mul_vec4(scale_matrix, transformedVertex);
+			//then rotate
+			transformedVertex = mat4_mul_vec4(rmatrix_x, transformedVertex);
+			transformedVertex = mat4_mul_vec4(rmatrix_y, transformedVertex);
+			transformedVertex = mat4_mul_vec4(rmatrix_z, transformedVertex);
+			//then translate
+			transformedVertex = mat4_mul_vec4(translation_matrix, transformedVertex);
+			
 			//translate the vertex away from camera
-			transformedVertex.z += _zOffset;
+			/*transformedVertex.z += _zOffset;*/
 
 			//cache transformed vertex
 			transformedVertices[j] = transformedVertex;
@@ -141,9 +160,9 @@ void update(void) {
 		//Check backface-culling//
 		if (_cullMethod == CULL_BACKFACE) {
 			
-			vec3_t vecA = transformedVertices[0];	 /*	 A   */
-			vec3_t vecB = transformedVertices[1];	/*  / \  */
-			vec3_t vecC = transformedVertices[2];  /*  C---B */
+			vec3_t vecA = vec3_fromVec4(transformedVertices[0]);	 /*	 A   */
+			vec3_t vecB = vec3_fromVec4(transformedVertices[1]);	/*  / \  */
+			vec3_t vecC = vec3_fromVec4(transformedVertices[2]);  /*  C---B */
 
 			//Get Vector Subtraction of b-a and c-a
 			vec3_t vecAB = vec3Sub(vecB, vecA);
@@ -173,7 +192,7 @@ void update(void) {
 		for (int k = 0; k < T_SIZE; k++) {
 
 			//project current vertex
-			projectedPoints[k] = project(transformedVertices[k]);
+			projectedPoints[k] = project(vec3_fromVec4(transformedVertices[k]));
 
 			//scale and translate to center screen
 			projectedPoints[k].x += (_windowWidth / 2);
